@@ -1,194 +1,248 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>Comprehensive Git Reference</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            line-height: 1.6;
-            margin: 20px;
-            max-width: 1200px;
-        }
-        h1, h2, h3 {
-            color: #2c3e50;
-        }
-        code {
-            background-color: #ecf0f1;
-            padding: 2px 6px;
-            border-radius: 4px;
-            font-family: monospace;
-        }
-        pre {
-            background-color: #ecf0f1;
-            padding: 10px;
-            border-radius: 6px;
-            overflow-x: auto;
-        }
-        section {
-            margin-bottom: 30px;
-        }
-        ul {
-            margin-bottom: 10px;
-        }
-        .diagram {
-            font-family: monospace;
-            background-color: #f5f5f5;
-            padding: 10px;
-            border-left: 4px solid #3498db;
-            margin: 10px 0;
-            white-space: pre;
-        }
-    </style>
+<meta charset="UTF-8">
+<title>Interactive Git Reference</title>
+<style>
+    body { font-family: Arial, sans-serif; margin: 20px; max-width: 1200px; line-height: 1.6; }
+    h1,h2,h3 { color: #2c3e50; }
+    code { background-color: #ecf0f1; padding: 2px 6px; border-radius: 4px; font-family: monospace; }
+    pre { background-color: #ecf0f1; padding: 10px; border-radius: 6px; overflow-x: auto; }
+    section { margin-bottom: 30px; }
+    ul { margin-bottom: 10px; }
+    svg { border: 1px solid #ddd; margin: 10px 0; }
+    .commit { fill: #3498db; cursor: pointer; }
+    .merge-commit { fill: #f39c12; }
+    .branch-line { stroke-width: 3; }
+    .tooltip { position: absolute; background: #ecf0f1; padding: 8px; border: 1px solid #bdc3c7; border-radius: 4px; display: none; }
+    button { margin: 5px 10px 20px 0; padding: 6px 12px; font-size: 14px; cursor: pointer; }
+</style>
 </head>
 <body>
 
-    <h1>Comprehensive Git Command Reference</h1>
+<h1>Interactive Git Reference</h1>
+<p>Hover over commits to see explanations. Click buttons to simulate merges and rebases.</p>
 
-    <section id="basic-commands">
-        <h2>1. Basic Git Commands</h2>
-        <ul>
-            <li><code>git init</code>: Initializes a new Git repository in the current folder. This creates a <code>.git</code> folder to track commits. Local repository starts empty.</li>
-            
-            <li><strong>Connecting to a remote repository manually (after git init)</strong>:
-                <ul>
-                    <li>Create remote repo on GitHub.</li>
-                    <li>Add it as a remote to your local repo:</li>
-                    <pre>git remote add origin https://github.com/username/repo.git</pre>
-                    <li>Push initial commits to GitHub:</li>
-                    <pre>git push -u origin main</pre>
-                    <li>This sets <code>origin/main</code> as the tracking branch so future <code>git push</code> and <code>git pull</code> know where to sync.</li>
-                </ul>
-                <p>This is the alternative to cloning. You manage a local repo first, then connect it to remote manually.</p>
-            </li>
+<section id="basic-commands">
+<h2>1. Basic Git Commands</h2>
+<ul>
+    <li><code>git init</code>: Initializes a new Git repository in the current folder.</li>
+    <li><strong>Manual remote connection after init:</strong>
+        <pre>git remote add origin &lt;url&gt;
+git push -u origin main</pre>
+        <p>Alternative to cloning.</p>
+    </li>
+    <li><code>git clone &lt;url&gt;</code>: Creates a local copy and sets <code>origin</code>.</li>
+    <li><code>git status</code>: Shows staged/untracked changes.</li>
+    <li><code>git add &lt;file&gt;</code>: Stage changes.</li>
+    <li><code>git commit -m "message"</code>: Commit staged changes.</li>
+    <li><code>git log --oneline --graph --decorate --all</code>: Visual commit history.</li>
+</ul>
+</section>
 
-            <li><code>git clone &lt;url&gt;</code>: Creates a local copy of a remote repository and automatically sets <code>origin</code> as the tracking remote. Usually used to start work on existing projects.</li>
-            
-            <li><code>git status</code>: Shows changes in working directory, staged files, and untracked files.</li>
-            
-            <li><code>git add &lt;file&gt;</code>: Stages files for commit.</li>
-            
-            <li><code>git commit -m "message"</code>: Creates a snapshot of staged changes.</li>
-            
-            <li><code>git log</code>: Shows commit history. For visual graph:</li>
-            <pre>git log --oneline --graph --decorate --all</pre>
+<section id="branching">
+<h2>2. Branching & Divergence</h2>
+<ul>
+    <li><code>git branch &lt;name&gt;</code>: Create a new branch.</li>
+    <li><code>git checkout &lt;branch&gt;</code> or <code>git switch &lt;branch&gt;</code>: Switch branches.</li>
+    <li><code>git branch -d &lt;name&gt;</code>: Delete safely, <code>-D</code> force delete.</li>
+</ul>
+<p><strong>Diverged branches</strong> are when your local branch and remote both have unique commits:</p>
 
-            <li><code>git diff</code>: Shows changes between working directory, staging area, and commits.</li>
+<button onclick="simulateDiverged()">Show Divergence</button>
+<svg id="branching-graph" width="800" height="200"></svg>
 
-            <li><code>git checkout &lt;branch/tag/commit&gt;</code>: Switches branch, tag, or commit. If a tag or commit, HEAD becomes detached.</li>
-        </ul>
-    </section>
+<p><strong>Fast-forward:</strong> Local branch can be updated directly if no divergence exists:</p>
+<button onclick="simulateFastForward()">Show Fast-Forward</button>
+<svg id="fastforward-graph" width="800" height="100"></svg>
+</section>
 
-    <section id="branching">
-        <h2>2. Branching</h2>
-        <ul>
-            <li><code>git branch &lt;branchname&gt;</code>: Creates a new branch at current commit.</li>
-            <li><code>git checkout &lt;branchname&gt;</code>: Switch to a branch.</li>
-            <li><code>git switch &lt;branchname&gt;</code>: Modern branch switch command.</li>
-            <li><code>git branch -d &lt;branchname&gt;</code>: Deletes a local branch safely.</li>
-            <li><code>git branch -D &lt;branchname&gt;</code>: Force delete branch.</li>
-        </ul>
-        <p><strong>Branches are moving pointers</strong>: they move forward with each commit.</p>
+<section id="merge-rebase">
+<h2>3. Merge and Rebase</h2>
+<button onclick="simulateMerge()">Simulate Merge</button>
+<button onclick="simulateRebase()">Simulate Rebase</button>
+<svg id="merge-rebase-graph" width="800" height="250"></svg>
+</section>
 
-        <h3>Diverged Branches & Fast-Forward</h3>
-        <p><strong>Diverged branches:</strong> your local branch and the remote branch both have commits that the other does not. Example:</p>
-        <div class="diagram">
-        Common ancestor
-              B
-             / \
-        Local D   Remote C
-             \   /
-             ?
-        </div>
-        <p>Git cannot fast-forward in this case. You must either merge or rebase to reconcile.</p>
+<section id="history-analysis">
+<h2>4. History Analysis Commands</h2>
+<ul>
+    <li><code>git log</code>: Commit history.</li>
+    <li><code>git blame &lt;file&gt;</code>: Who last changed each line.</li>
+    <li><code>git bisect</code>: Binary search for buggy commit.</li>
+    <li><code>git reflog</code>: History of HEAD, even across resets.</li>
+</ul>
+</section>
 
-        <p><strong>Fast-Forward:</strong> Your branch can be moved directly to the new commit if there are no local changes diverging from the remote:</p>
-        <div class="diagram">
-        Remote: A---B---C
-        Local:  A---B
-        --fast-forward--> move local pointer to C
-        </div>
-    </section>
+<section id="remote">
+<h2>5. Remote Operations</h2>
+<ul>
+    <li><code>git fetch</code>: Get remote changes without merging.</li>
+    <li><code>git pull</code>: Fetch + merge/rebase.</li>
+    <li><code>git push</code>: Push local commits.</li>
+    <li><code>git push origin &lt;branch/tag&gt;</code>: Push specific branch/tag.</li>
+    <li><code>git push origin --delete &lt;branch&gt;</code>: Delete remote branch.</li>
+    <li><code>git remote add/remove/rename</code>: Manage remotes.</li>
+</ul>
+</section>
 
-    <section id="tags">
-        <h2>3. Tags</h2>
-        <ul>
-            <li><code>git tag &lt;tagname&gt;</code>: Creates a lightweight tag.</li>
-            <li><code>git tag -a &lt;tagname&gt; -m "message"</code>: Annotated tag.</li>
-            <li><code>git push origin &lt;tagname&gt;</code>: Push one tag to remote.</li>
-            <li><code>git push origin --tags</code>: Push all tags.</li>
-        </ul>
-        <p><strong>Tags are fixed pointers</strong>: they never move, unlike branches. Commonly used for marking releases.</p>
-    </section>
+<section id="advanced">
+<h2>6. Advanced Commands</h2>
+<ul>
+    <li><code>git reset --soft/hard HEAD~1</code>: Move HEAD backward with/without keeping changes.</li>
+    <li><code>git stash / git stash pop</code>: Temporarily save changes.</li>
+    <li><code>git cherry-pick &lt;commit&gt;</code>: Apply a commit from another branch.</li>
+    <li><code>git clean -fd</code>: Remove untracked files/directories.</li>
+</ul>
+</section>
 
-    <section id="merges-rebase">
-        <h2>4. Merge and Rebase</h2>
-        <h3>Merge</h3>
-        <ul>
-            <li><code>git merge &lt;branch&gt;</code>: Combines changes from another branch. Creates merge commit if needed.</li>
-            <li><code>git merge --no-ff &lt;branch&gt;</code>: Forces creation of a merge commit even if fast-forward possible.</li>
-        </ul>
-        <div class="diagram">
-        A---B---C (main)
-             \
-              D---E (feature)
-        --merge-->
-        A---B---C------M
-             \       /
-              D---E
-        </div>
+<div class="tooltip" id="tooltip"></div>
 
-        <h3>Rebase</h3>
-        <ul>
-            <li><code>git rebase &lt;base-branch&gt;</code>: Moves local commits on top of base branch, creating linear history.</li>
-            <li><code>git pull --rebase</code>: Fetches remote changes and replays your commits on top.</li>
-        </ul>
-        <div class="diagram">
-        Before rebase:
-        A---B---C (main)
-             \
-              D---E (feature)
-        After rebase on main:
-        A---B---C---D'---E'
-        </div>
-    </section>
+<script>
+/* ================= TOOLTIP ================= */
+const tooltip = document.getElementById('tooltip');
 
-    <section id="history-analysis">
-        <h2>5. History Analysis Commands</h2>
-        <ul>
-            <li><code>git log</code>: Show commit history.</li>
-            <li><code>git blame &lt;file&gt;</code>: Shows who last changed each line.</li>
-            <li><code>git bisect</code>: Binary search for the commit that introduced a bug.</li>
-            <li><code>git reflog</code>: Shows where HEAD has been, even across resets.</li>
-        </ul>
-    </section>
+function showTooltip(evt, msg) {
+    tooltip.style.display = 'block';
+    tooltip.style.left = evt.pageX + 10 + 'px';
+    tooltip.style.top = evt.pageY + 10 + 'px';
+    tooltip.innerHTML = msg;
+}
 
-    <section id="remote">
-        <h2>6. Remote Repository Operations</h2>
-        <ul>
-            <li><code>git clone &lt;url&gt;</code>: Copy remote repo locally.</li>
-            <li><code>git fetch</code>: Get remote changes without merging.</li>
-            <li><code>git pull</code>: Fetch + merge or rebase.</li>
-            <li><code>git push</code>: Push local commits to tracking remote branch.</li>
-            <li><code>git push origin &lt;branch/tag&gt;</code>: Push specific branch or tag.</li>
-            <li><code>git push origin --delete &lt;branch&gt;</code>: Delete remote branch.</li>
-            <li><code>git remote add &lt;name&gt; &lt;url&gt;</code>: Add new remote.</li>
-            <li><code>git remote remove &lt;name&gt;</code>: Remove a remote.</li>
-            <li><code>git remote rename &lt;old&gt; &lt;new&gt;</code>: Rename remote shortcut.</li>
-        </ul>
-    </section>
+function hideTooltip() {
+    tooltip.style.display = 'none';
+}
 
-    <section id="advanced">
-        <h2>7. Advanced Local Commands</h2>
-        <ul>
-            <li><code>git reset --soft HEAD~1</code>: Move HEAD backward but keep staged changes.</li>
-            <li><code>git reset --hard HEAD~1</code>: Move HEAD backward and discard changes.</li>
-            <li><code>git stash</code>: Save working directory changes temporarily.</li>
-            <li><code>git stash pop</code>: Restore stashed changes.</li>
-            <li><code>git cherry-pick &lt;commit&gt;</code>: Apply a specific commit from another branch.</li>
-            <li><code>git clean -fd</code>: Remove untracked files and directories.</li>
-        </ul>
-    </section>
+/* ================= HELPERS ================= */
+function drawCommit(svg, x, y, id, msg) {
+    const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+    circle.setAttribute('cx', x);
+    circle.setAttribute('cy', y);
+    circle.setAttribute('r', 10);
+    circle.classList.add('commit');
+    circle.addEventListener('mouseover', e => showTooltip(e, msg));
+    circle.addEventListener('mouseout', hideTooltip);
+    svg.appendChild(circle);
 
+    const label = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+    label.setAttribute('x', x + 14);
+    label.setAttribute('y', y + 5);
+    label.textContent = id;
+    svg.appendChild(label);
+}
+
+function drawLine(svg, x1, y1, x2, y2, color) {
+    const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+    line.setAttribute('x1', x1);
+    line.setAttribute('y1', y1);
+    line.setAttribute('x2', x2);
+    line.setAttribute('y2', y2);
+    line.setAttribute('stroke', color);
+    line.setAttribute('stroke-width', 3);
+    svg.appendChild(line);
+}
+
+/* ================= DIVERGENCE ================= */
+let divergedShown = false;
+
+function simulateDiverged() {
+    const svg = document.getElementById('branching-graph');
+    svg.innerHTML = '';
+
+    if (!divergedShown) {
+        // BEFORE divergence (common ancestor)
+        drawCommit(svg, 150, 50, 'B', 'Common ancestor commit');
+    } else {
+        // AFTER divergence
+        drawLine(svg, 150, 50, 250, 20, '#2c3e50'); // remote
+        drawLine(svg, 150, 50, 250, 90, '#27ae60'); // local
+
+        drawCommit(svg, 150, 50, 'B', 'Common ancestor');
+        drawCommit(svg, 250, 20, 'C', 'Remote commit');
+        drawCommit(svg, 250, 90, 'D', 'Local commit');
+    }
+
+    divergedShown = !divergedShown;
+}
+
+/* ================= FAST-FORWARD ================= */
+let fastForwardShown = false;
+
+function simulateFastForward() {
+    const svg = document.getElementById('fastforward-graph');
+    svg.innerHTML = '';
+
+    if (!fastForwardShown) {
+        // BEFORE fast-forward
+        drawLine(svg, 50, 50, 150, 50, '#2c3e50');
+        drawLine(svg, 150, 50, 250, 50, '#2c3e50');
+
+        drawCommit(svg, 50, 50, 'A', 'Initial commit');
+        drawCommit(svg, 150, 50, 'B', 'Local HEAD');
+        drawCommit(svg, 250, 50, 'C', 'Remote ahead');
+    } else {
+        // AFTER fast-forward
+        drawLine(svg, 50, 50, 150, 50, '#2c3e50');
+        drawLine(svg, 150, 50, 250, 50, '#2c3e50');
+
+        drawCommit(svg, 50, 50, 'A', 'Initial commit');
+        drawCommit(svg, 150, 50, 'B', 'Previous commit');
+        drawCommit(svg, 250, 50, 'C', 'Local fast-forwarded');
+    }
+
+    fastForwardShown = !fastForwardShown;
+}
+
+/* ================= MERGE / REBASE ================= */
+function drawBaseMergeGraph(svg) {
+    svg.innerHTML = '';
+
+    // base lines
+    drawLine(svg, 100, 50, 200, 50, '#2c3e50');
+    drawLine(svg, 200, 50, 300, 50, '#2c3e50');
+    drawLine(svg, 200, 50, 200, 150, '#27ae60');
+    drawLine(svg, 200, 150, 300, 150, '#27ae60');
+
+    drawCommit(svg, 100, 50, 'A', 'Base commit');
+    drawCommit(svg, 200, 50, 'B', 'Branch point');
+    drawCommit(svg, 300, 50, 'C', 'Main branch');
+    drawCommit(svg, 200, 150, 'D', 'Feature commit');
+    drawCommit(svg, 300, 150, 'E', 'Feature commit');
+}
+
+function simulateMerge() {
+    const svg = document.getElementById('merge-rebase-graph');
+    drawBaseMergeGraph(svg);
+
+    drawLine(svg, 300, 50, 400, 100, '#2c3e50');
+    drawLine(svg, 300, 150, 400, 100, '#27ae60');
+
+    drawCommit(svg, 400, 100, 'M', 'Merge commit');
+}
+
+function simulateRebase() {
+    const svg = document.getElementById('merge-rebase-graph');
+    svg.innerHTML = '';
+
+    drawLine(svg, 100, 50, 200, 50, '#2c3e50');
+    drawLine(svg, 200, 50, 300, 50, '#2c3e50');
+    drawLine(svg, 300, 50, 400, 50, '#27ae60');
+    drawLine(svg, 400, 50, 500, 50, '#27ae60');
+
+    drawCommit(svg, 100, 50, 'A', 'Base commit');
+    drawCommit(svg, 200, 50, 'B', 'Branch point');
+    drawCommit(svg, 300, 50, 'C', 'Main branch');
+    drawCommit(svg, 400, 50, "D'", 'Rebased commit');
+    drawCommit(svg, 500, 50, "E'", 'Rebased commit');
+}
+
+/* ================= INITIAL RENDER ================= */
+simulateDiverged();
+simulateFastForward();
+simulateMerge();
+</script>
+
+
+<div class="tooltip" id="tooltip"></div>
 </body>
 </html>
